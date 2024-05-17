@@ -1,10 +1,11 @@
 
 
-const errorhandler = ((err,req,res,next)=>{
-    res.json({
+const errorHandler = ((err,req,res,next)=>{
+    res.status(err.status || 500).json({
         message:err.message,
-        stack:err.stack
+        stack:err.stack,
+        status: err.status || 500
     })
 })
 
-module.exports = errorhandler
+module.exports = errorHandler

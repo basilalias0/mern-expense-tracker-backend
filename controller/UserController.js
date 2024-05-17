@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken')
 const secretKey = process.env.SECRET_KEY
 
 const User = require('../model/User')
-const { Error } = require('mongoose')
 
 const userController = {
     registerPage:asyncHandler(async(req,res)=>{
@@ -12,7 +11,7 @@ const userController = {
     }),
     registerUser: asyncHandler(async(req,res)=>{
        const {name,username,password,email} = req.body
-       if(!username || !password || !email){
+       if(!name || !username || !password || !email){
         throw new Error("Data Incomplete")
        }
        const userExist = await User.findOne({username})
@@ -37,7 +36,8 @@ const userController = {
         const {username,password} = req.body
         const userFound = await User.findOne({username})
         if(!userFound){
-            throw new Error("User not found")
+            throw new Error("User not found",500)
+            
         }
         const passwordCheck = await bcrypt.compare(password,userFound.password)
         if (!passwordCheck){
@@ -53,11 +53,15 @@ const userController = {
                 httpOnly:true,
                 secure:false,
                 sameSite:true
+            
             })
-
-
-            res.redirect('/dashboard')
-        }else{
+            res.json({
+                message:"Login Success",
+                username:userFound.username,
+                id:userFound._id,
+                token:token,
+                email:userFound.email
+            })
             res.send("invalid data")
         }
         
@@ -104,6 +108,11 @@ const userController = {
             })
 
             res.redirect('/dashboard')
+        
+    }),
+    updateName:asyncHandler(async(req,res)=>{
+        const {name} = req.body
+        await User.updateOne({username:req.user.username},{name})
         
     }),
     signOutUser: asyncHandler(async(req,res)=>{
