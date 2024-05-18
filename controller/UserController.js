@@ -3,22 +3,36 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const secretKey = process.env.SECRET_KEY
 
+
 const User = require('../model/User')
+const { Error } = require('mongoose')
 
 const userController = {
-    registerPage:asyncHandler(async(req,res)=>{
-        res.send("This is register page")
-    }),
     registerUser: asyncHandler(async(req,res)=>{
        const {name,username,password,email} = req.body
        if(!name || !username || !password || !email){
         throw new Error("Data Incomplete")
        }
-       const userExist = await User.findOne({username})
+       const userExistU = await User.findOne({username})
+       const userExistE = await User.findOne({email})
        
-       if(userExist){
-        throw new Error("user Exist")
+       if(userExistU){
+        throw new Error("username Taken")
        }
+       if(userExistE){
+        throw new Error("User Exist")
+       }
+       const payload = {
+        username
+    }
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+    res.cookie('token',token,{
+        maxAge:1*24*60*1000,
+        httpOnly:true,
+        secure:false,
+        sameSite:'strict'
+    
+    })
        const hashedPassword = await bcrypt.hash(password,10)
        const createdUser = await User.create({
         name,
@@ -26,11 +40,12 @@ const userController = {
         password:hashedPassword,
         email
        })
-       res.json(createdUser)
-       res.redirect('/dashboard')
-    }),
-    signInPage:asyncHandler(async(req,res)=>{
-        res.send("This is SignIn Page")
+       res.json({
+        name,
+        username,
+        email,
+        token
+       })
     }),
     signInUser: asyncHandler(async(req,res)=>{
         const {username,password} = req.body
@@ -56,11 +71,10 @@ const userController = {
             
             })
             res.json({
-                message:"Login Success",
                 username:userFound.username,
-                id:userFound._id,
                 token:token,
-                email:userFound.email
+                email:userFound.email,
+                name:userFound.name
             })
             res.send("invalid data")
         }
@@ -86,7 +100,7 @@ const userController = {
     }),
     updateUsername:asyncHandler(async(req,res)=>{
         const {username} = req.body
-        const userExist = await User.findOne({username:username})
+        const userExist = await User.findOne({username})
         if (username === req.user.username){
             throw new Error("Same username entered!!")
         }else if(userExist){
@@ -94,6 +108,7 @@ const userController = {
         }else{
             await User.updateOne({username:req.user.username},{username})
         }
+        const userFound = await User.findOne({username})
         res.clearCookie('token')
         const payload = {
             username
@@ -107,18 +122,32 @@ const userController = {
                 sameSite:true
             })
 
-            res.redirect('/dashboard')
+            res.json({
+                username,
+                token,
+                email:userFound.email,
+                name:userFound.name
+               })
         
     }),
     updateName:asyncHandler(async(req,res)=>{
         const {name} = req.body
+        console.log(name);
         await User.updateOne({username:req.user.username},{name})
+        const userFound = await User.findOne({username:req.user.username})
+        const username=userFound.username
+        const payload = {
+            username
+        }
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
         
-    }),
-    signOutUser: asyncHandler(async(req,res)=>{
-        res.clearCookie()
-        res.redirect('/')
-    })
+        res.json({
+            username,
+            token,
+            email:userFound.email,
+            name:userFound.name
+           })
+        }),
 }
 
 module.exports = userController
