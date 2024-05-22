@@ -23,12 +23,16 @@ const transactionController = {
             throw new Error("User not Found")
         }
         const categoryFound = await Category.findOne({name:category,user:userFound._id})
+        const reAmount = amount+(categoryFound?.amount || 0)
         if(!categoryFound){
             await Category.create({
                 user:userFound._id,
                 name:category,
-                type
+                type,
+                amount
             })
+        }else{
+            const updatedCategory = await Category.updateOne({name:category,user:userFound._id},{amount:reAmount})
         }
          const createdTransaction = await Transactions.create({
             user:userFound._id,
@@ -43,8 +47,24 @@ const transactionController = {
     }),
     delete:asyncHandler(async(req,res)=>{
         transactionId = req.params.id
+        const transactionFound = await Transactions.findById(transactionId)
+        const category = transactionFound.category
+        const user = transactionFound.user
+        let categoryFound = await Category.findOne({name:category,user:user._id})
+        const reAmount = (categoryFound?.amount || 0)-(transactionFound?.amount || 0)
+        if(categoryFound){
+            await Category.updateOne({name:category,user:user._id},{amount:reAmount})
+        }
+        categoryFound = await Category.findOne({name:category,user:user._id})
+        if(categoryFound.amount === 0){
+            await Category.deleteOne({name:category,user:user._id})
+        }
         const deletedOne = await Transactions.deleteOne({_id:transactionId})
-        res.redirect('/transaction')
+        if(deletedOne){
+            res.send(deletedOne)
+        }else{
+            throw new Error("Error Happened")
+        }
     })
 
 }

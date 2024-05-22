@@ -15,7 +15,8 @@ const categoryController= {
             return({
                 id:element.id,
                 name:element.name,
-                type:element.type
+                type:element.type,
+                amount:element.amount
             })
         })
         res.send(categoryList)
@@ -26,12 +27,9 @@ const categoryController= {
       const defaultCategory = "Uncategorized"
       const category = await Category.findById(categoryId) 
       const userFound = await User.findOne({username:user})
-      console.log(category);
-        const updatedtransaction = await Transactions.updateMany({user:userFound._id,category:category.name},{$set:{category:defaultCategory}}) 
-     console.log(updatedtransaction);
+        const updatedtransaction = await Transactions.updateMany({user:userFound._id,category:category.name},{$set:{category:defaultCategory}})
      const deletedOne = await Category.deleteOne({_id:categoryId})
-     console.log(deletedOne);
-      res.redirect('/category')
+      res.send(deletedOne)
         
     })
 }

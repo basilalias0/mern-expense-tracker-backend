@@ -13,9 +13,7 @@ const isAuth = ((req,res,next)=>{
     if(!decoded){
         throw new Error("Invalid Token")
     }
-    console.log(decoded);
     req.user = decoded
-    console.log(req.user.username);
     next();
 })
 

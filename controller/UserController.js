@@ -81,13 +81,11 @@ const userController = {
         
     }),
     updatePassword:asyncHandler(async(req,res)=>{
-        console.log(req.user);
         const {newPassword,oldPassword} = req.body
         if(newPassword===oldPassword){
             throw new Error("Old password re-entered")
         }
         const username = req.user.username
-        console.log(req.user);
         const userFound = await User.findOne({username})
         const passwordMatch = await bcrypt.compare(oldPassword,userFound.password)
         if(!passwordMatch){
@@ -112,8 +110,6 @@ const userController = {
     }),
     updateUsername:asyncHandler(async(req,res)=>{
         const {username} = req.body
-        console.log(req.body);
-        console.log(req.user);
         const userExist = await User.findOne({username})
         if (username === req.user.username){
             throw new Error("Same username entered!!")
@@ -146,7 +142,6 @@ const userController = {
     }),
     updateName:asyncHandler(async(req,res)=>{
         const {name} = req.body
-        console.log(name);
         await User.updateOne({username:req.user.username},{name})
         const userFound = await User.findOne({username:req.user.username})
         const username=userFound.username
