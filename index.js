@@ -29,7 +29,8 @@ app.use(cookieParser());
 app.use(express.json());
 
 const corsOption ={
-    origin:['https://ie-tracker.vercel.app/'],
+    origin: 'https://ie-tracker.vercel.app',
+    optionsSuccessStatus: 200,
     credentials: true
 }
 app.use(cors(corsOption))
