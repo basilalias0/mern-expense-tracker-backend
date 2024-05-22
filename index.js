@@ -30,9 +30,11 @@ app.use(express.json());
 
 const corsOption ={
     origin:['http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }
-app.use(cors(corsOption))
+app.use('*',cors(corsOption))
 
 
 app.get('/api/v1/',(req,res)=>{
