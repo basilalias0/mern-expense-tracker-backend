@@ -47,6 +47,6 @@ app.use('/api/v1/transaction',transactionRouter)
 app.use(errorHandler)
 
 
-app.listen(5000,()=>{
-    console.log("http://localhost:5000");
+app.listen(3000,()=>{
+    console.log("http://localhost:3000");
 })
