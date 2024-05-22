@@ -6,7 +6,7 @@ const cors = require('cors')
 const userRouter = require('./routes/UserRoutes');
 const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/ErrorHandler');
-const categoryRouter = require('./routes/categoryRoutes');
+const categoryRouter = require('./routes/CategoryRoutes');
 const transactionRouter = require('./routes/TransactionRoutes');
 
 
@@ -30,11 +30,9 @@ app.use(express.json());
 
 const corsOption ={
     origin:['http://localhost:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }
-app.use('*',cors(corsOption))
+app.use(cors(corsOption))
 
 
 app.get('/api/v1/',(req,res)=>{
