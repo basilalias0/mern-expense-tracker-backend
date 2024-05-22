@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 const corsOption ={
-    origin:['http://localhost:3000'],
+    origin:['https://ie-tracker.vercel.app/'],
     credentials: true
 }
 app.use(cors(corsOption))
